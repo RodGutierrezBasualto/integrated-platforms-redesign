@@ -2,11 +2,14 @@
 
 This is a version of the Integrated Platforms website built in the style of **endcap.design**. It uses Endcap's editorial grid, type pairing, lime accent and motion, but every word and image is Integrated Platforms' own. The code is new; nothing was copied from Endcap.
 
+**Live preview:** https://rodgutierrezbasualto.github.io/integrated-platforms-endcap/
+It is hosted on GitHub Pages from `main` in `RodGutierrezBasualto/integrated-platforms-endcap`, a public repo. The pages carry a `noindex` tag, so search engines won't list this copy next to the real site. To update it, push to `main` and Pages rebuilds in about a minute.
+
 ```bash
 cd ~/Desktop/Website/integrated-platforms
 python3 -m http.server 8820        # → http://localhost:8820
 ```
-Serve the folder root, because the pages use root paths. `tools/preview.html?w=390&h=844&p=/` shows the site at phone size, or at any other size, inside a normal window.
+All paths are relative, so the site works at a domain root, in a subfolder (as on GitHub Pages) or with `http.server`. `tools/preview.html?w=390&h=844` shows the site at phone size, or at any other size, inside a normal window.
 
 ## Pages
 - `index.html` is the homepage. Its sections, in order:
