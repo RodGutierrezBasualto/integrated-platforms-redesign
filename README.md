@@ -61,7 +61,19 @@ All paths are relative, so the site works at a domain root, in a subfolder (as o
 | Page change between home and contact: a cross-document View Transition | `@view-transition` in CSS |
 
 ## Personalising
-- **Colours:** change the tokens at the top of `css/site.css` (`--acid`, `--paper`, `--ink`, `--olive`, `--sand`). The lime is Endcap's; the brand's own pale green, `#dde8c9`, is in the favicon.
+- **Colours:** the palette matches integratedplatforms.com.au:
+
+  | Token | Value | Used for |
+  |---|---|---|
+  | `--paper` | `#f2f5fa` | Page |
+  | `--surface` | `#fff` | Alternating sections and card hovers |
+  | `--ink` | `#1a1a1c` | Text |
+  | `--night` | `#0d0d12` | Dark sections and buttons |
+  | `--line` | `#d7dde5` | Lines |
+  | `--acid` | `#bfee67` | IP lime. With `--acid-soft` `#daff95` it makes the hero, call to action and contact gradient |
+  | `--accent` | `#864ffe` | IP purple: service labels, the founder underline, the logo diamond and the footer mark |
+
+  Change them at the top of `css/site.css`. The map reads the same tokens.
 - **Fonts:** Hanken Grotesk and Fraunces (both OFL) are in `assets/fonts/`.
 - **Map markets:** edit the `markets` array in `js/motion.js`, using longitude and latitude. The visible area is set at the top of `tools/make_map.py`. To regenerate the dots:
   ```bash

@@ -113,6 +113,15 @@
       { name: 'Chile', at: toGrid(-70.8, -31), label: [1.6, 0.4] },
     ];
     canvas.style.aspectRatio = `${M.cols} / ${M.rows}`;
+    // colours come from the CSS tokens, so re-skinning the site re-skins the map
+    const css = getComputedStyle(document.documentElement);
+    const rgb = name => {
+      let h = css.getPropertyValue(name).trim().replace('#', '');
+      if (h.length === 3) h = [...h].map(c => c + c).join('');
+      const n = parseInt(h, 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(',');
+    };
+    const PAPER = rgb('--paper'), ACID = rgb('--acid');
 
     let W = 0, H = 0, cell = 0, dpr = 1, base = null, start = 0, running = false, visible = false;
     const px = g => [(g[0] + 0.5) * cell, (g[1] + 0.5) * cell];
@@ -130,7 +139,7 @@
       base.height = H;
       const b = base.getContext('2d');
       const s = Math.max(1, cell * 0.42);
-      b.fillStyle = 'rgba(242,240,231,.24)';
+      b.fillStyle = `rgba(${PAPER},.22)`;
       dots.forEach(([c, r]) => b.fillRect((c + 0.5) * cell - s / 2, (r + 0.5) * cell - s / 2, s, s));
       draw(running ? performance.now() : start + 1e6);
     }
@@ -158,7 +167,7 @@
           const d = Math.hypot(c + 0.5 - (home.at[0] + 0.5), r + 0.5 - (home.at[1] + 0.5));
           const k = 1 - Math.abs(d - radius) / 6;
           if (k <= 0) return;
-          ctx.fillStyle = `rgba(220,232,122,${(k * 0.85).toFixed(3)})`;
+          ctx.fillStyle = `rgba(${ACID},${(k * 0.85).toFixed(3)})`;
           ctx.fillRect((c + 0.5) * cell - s / 2, (r + 0.5) * cell - s / 2, s, s);
         });
       }
@@ -169,7 +178,7 @@
         const grow = Math.min(1, Math.max(0, (t - 0.6 - i * 0.35) / 1.4));
         const eased = 1 - Math.pow(1 - grow, 3);
         if (eased <= 0) return;
-        ctx.strokeStyle = 'rgba(220,232,122,.55)';
+        ctx.strokeStyle = `rgba(${ACID},.6)`;
         ctx.lineWidth = 1.4 * dpr;
         ctx.beginPath();
         for (let k = 0; k <= 60; k++) {
@@ -180,7 +189,7 @@
         if (grow >= 1) {
           const phase = ((t - 2 - i * 0.7) / 2.6) % 1;
           if (phase > 0) {
-            ctx.strokeStyle = 'rgba(242,240,231,.95)';
+            ctx.strokeStyle = `rgba(${PAPER},.95)`;
             ctx.lineWidth = 2.2 * dpr;
             ctx.beginPath();
             for (let k = 0; k <= 8; k++) {
@@ -192,10 +201,10 @@
           // market marker + label
           const [mx, my] = px(m.at);
           const ms = s * 2.2;
-          ctx.fillStyle = '#dce87a';
+          ctx.fillStyle = `rgb(${ACID})`;
           ctx.fillRect(mx - ms / 2, my - ms / 2, ms, ms);
           ctx.font = `700 ${Math.round(11 * dpr)}px "Hanken Grotesk", Arial, sans-serif`;
-          ctx.fillStyle = 'rgba(242,240,231,.9)';
+          ctx.fillStyle = `rgba(${PAPER},.9)`;
           ctx.textAlign = m.label[0] < 0 ? 'right' : 'left';
           ctx.fillText(m.name.toUpperCase(), mx + m.label[0] * cell * 2, my + m.label[1] * cell * 2);
         }
@@ -203,13 +212,13 @@
 
       // home: a white square with a repeating ping ring
       const ping = (t % 2.4) / 2.4;
-      ctx.strokeStyle = `rgba(242,240,231,${(0.7 * (1 - ping)).toFixed(3)})`;
+      ctx.strokeStyle = `rgba(${PAPER},${(0.7 * (1 - ping)).toFixed(3)})`;
       ctx.lineWidth = 1.5 * dpr;
       ctx.beginPath();
       ctx.arc(hx, hy, cell * (1 + ping * 5), 0, Math.PI * 2);
       ctx.stroke();
       const hs = s * 2.6;
-      ctx.fillStyle = '#f2f0e7';
+      ctx.fillStyle = `rgb(${PAPER})`;
       ctx.fillRect(hx - hs / 2, hy - hs / 2, hs, hs);
       ctx.font = `800 ${Math.round(15 * dpr)}px "Hanken Grotesk", Arial, sans-serif`;
       ctx.textAlign = 'right';
