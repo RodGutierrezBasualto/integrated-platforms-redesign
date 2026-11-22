@@ -1,0 +1,13 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Preview 1440×900</title>
+<!-- Dev helper: shows the site at a desktop viewport inside a smaller window.  /tools/preview.html?w=390&h=844&p=../contact/ -->
+<style>html,body{margin:0;height:100%;background:#222;overflow:hidden}iframe{border:0;transform-origin:0 0;background:#fff}</style>
+<iframe id="f"></iframe>
+<script>
+  const q = new URLSearchParams(location.search), w = +q.get('w') || 1440, h = +q.get('h') || 900;
+  const f = document.getElementById('f');
+  f.width = w; f.height = h; f.src = q.get('p') || '../';
+  const fit = () => { f.style.transform = `scale(${Math.min(innerWidth / w, innerHeight / h)})`; };
+  addEventListener('resize', fit); fit();
+</script>
