@@ -1,47 +1,28 @@
-/* Integrated Platforms — interface behaviour: header states, mobile menu, FAQ accordion, contact form. */
+/* Integrated Platforms — interface: floating header, mobile menu, FAQ accordion, contact form. */
 (() => {
   'use strict';
-  const root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Header: a soft shadow once you leave the top; slides away while scrolling down, back on the way up. */
-  const mast = document.querySelector('.mast');
-  if (mast) {
-    let lastY = scrollY, raf = 0;
-    const update = () => {
-      raf = 0;
-      const y = scrollY;
-      if (y > 120) mast.classList.add('is-scrolled');
-      else if (y < 40) mast.classList.remove('is-scrolled');
-      if (mast.classList.contains('menu-open')) { lastY = y; return; }
-      if (y > 480 && y > lastY + 6) mast.classList.add('is-away');
-      else if (y < lastY - 6 || y <= 480) mast.classList.remove('is-away');
-      if (Math.abs(y - lastY) > 6) lastY = y;
-    };
-    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
-    mast.addEventListener('focusin', () => mast.classList.remove('is-away'));
+  /* floating header: a shadow once the page moves */
+  const top = document.querySelector('.top');
+  if (top) {
+    const update = () => top.classList.toggle('is-scrolled', scrollY > 10);
+    addEventListener('scroll', update, { passive: true });
     update();
 
-    /* Mobile menu: the header turns ink and the links become big numbered rows. */
-    const button = mast.querySelector('.menu-toggle');
-    const nav = mast.querySelector('nav');
-    if (button && nav) {
-      button.hidden = false;
-      const setMenu = (open, focusButton) => {
-        mast.classList.toggle('menu-open', open);
-        root.classList.toggle('menu-locked', open);
-        button.setAttribute('aria-expanded', String(open));
-        button.innerHTML = open ? 'Close <span aria-hidden="true">−</span>' : 'Menu <span aria-hidden="true">+</span>';
-        if (focusButton) button.focus();
-      };
-      button.addEventListener('click', () => setMenu(button.getAttribute('aria-expanded') !== 'true'));
-      nav.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape' && mast.classList.contains('menu-open')) setMenu(false, true); });
-      matchMedia('(min-width: 901px)').addEventListener('change', () => setMenu(false));
+    const toggle = top.querySelector('.nav-toggle');
+    const panel = top.querySelector('.nav-panel');
+    if (toggle && panel) {
+      const setOpen = open => { panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); };
+      toggle.addEventListener('click', () => setOpen(panel.hidden));
+      panel.addEventListener('click', e => { if (e.target.closest('a')) setOpen(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { setOpen(false); toggle.focus(); } });
+      document.addEventListener('click', e => { if (!top.contains(e.target)) setOpen(false); });
+      matchMedia('(min-width: 961px)').addEventListener('change', () => setOpen(false));
     }
   }
 
-  /* FAQ: <details> that open and close with a height animation instead of a jump. */
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* FAQ: <details> that open and close smoothly */
   document.querySelectorAll('.faq-list details').forEach(details => {
     const summary = details.querySelector('summary');
     summary.addEventListener('click', e => {
@@ -53,14 +34,14 @@
       if (opening) details.open = true;
       const to = opening ? details.scrollHeight : summary.offsetHeight;
       details.style.overflow = 'hidden';
-      const anim = details.animate({ height: [from + 'px', to + 'px'] }, { duration: opening ? 520 : 380, easing: 'cubic-bezier(.32,.72,0,1)' });
-      details._anim = anim;
       details.classList.toggle('closing', !opening);
+      const anim = details.animate({ height: [from + 'px', to + 'px'] }, { duration: opening ? 480 : 340, easing: 'cubic-bezier(.22,.9,.24,1)' });
+      details._anim = anim;
       anim.onfinish = () => { details._anim = null; details.style.overflow = ''; details.classList.remove('closing'); if (!opening) details.open = false; };
     });
   });
 
-  /* Contact form (contact page). This prototype validates in the browser and sends nothing. */
+  /* contact form: validates in the browser; this prototype sends nothing */
   const form = document.querySelector('#enquiry');
   if (form) {
     const prompts = {
@@ -78,9 +59,6 @@
       message.placeholder = prompts[picked ? picked.value : 'unsure'];
     };
     form.addEventListener('change', e => { if (e.target.name === 'interest') setPrompt(); });
-    const wanted = new URLSearchParams(location.search).get('interest');
-    const preset = wanted && form.querySelector(`input[name="interest"][value="${CSS.escape(wanted)}"]`);
-    if (preset) preset.checked = true;
     setPrompt();
 
     const fieldOf = el => el.closest('.field');
@@ -99,9 +77,8 @@
         if (bad && !first) first = el;
       });
       if (first) { first.focus(); return; }
-      const name = form.querySelector('#name').value.trim().split(/\s+/)[0];
       const done = document.querySelector('.form-done');
-      done.querySelector('h2').textContent = `Thanks, ${name}.`;
+      done.querySelector('h2').textContent = `Thanks, ${form.querySelector('#name').value.trim().split(/\s+/)[0]}.`;
       form.hidden = true;
       done.hidden = false;
       done.focus();
